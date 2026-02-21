@@ -1,0 +1,23 @@
+{
+  "name": "rndvx",
+  "version": "0.1.0",
+  "private": true,
+  "workspaces": [
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:server\" \"npm run dev:client\"",
+    "dev:client": "npm run dev -w @rndvx/client",
+    "dev:server": "npm run dev -w @rndvx/server",
+    "build": "npm run build -w @rndvx/types && npm run build -w @rndvx/server && npm run build -w @rndvx/client",
+    "lint": "eslint 'packages/*/src/**/*.{ts,tsx}'",
+    "lint:fix": "eslint 'packages/*/src/**/*.{ts,tsx}' --fix",
+    "format": "prettier --write 'packages/*/src/**/*.{ts,tsx,json,css}'",
+    "db:migrate": "npm run db:migrate -w @rndvx/server",
+    "db:generate": "npm run db:generate -w @rndvx/server"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.7.0"
+  }
+}
