@@ -4,6 +4,7 @@ import { useAuth } from './hooks/useAuth';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
+import MeetingDetailPage from './pages/MeetingDetailPage';
 
 function AppRoutes() {
   const { isAuthenticated, token, fetchUser } = useAuth();
@@ -27,6 +28,10 @@ function AppRoutes() {
       <Route
         path="/register"
         element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+      />
+      <Route
+        path="/meetings/:id"
+        element={isAuthenticated ? <MeetingDetailPage /> : <Navigate to="/login" replace />}
       />
     </Routes>
   );
