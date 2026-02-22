@@ -126,6 +126,7 @@ rndvx/
 - **Animations**: Framer Motion for page transitions, micro-interactions, and gesture-based animations
 - **Hooks**: Custom hooks for reusable logic (useAuth, useMeetings, etc.)
 - **Styling**: Tailwind CSS utility classes, avoid inline styles
+- **Mobile First**: Design for mobile by default, use `sm:` breakpoint for desktop enhancements. Use `min-h-dvh`, `active:` states, 16px min input font size, touch-friendly tap targets (min 44px)
 
 ### Backend Patterns
 - **Routes**: RESTful structure (`/api/users`, `/api/meetings`, etc.)
@@ -213,6 +214,66 @@ cd packages/server && npx prisma migrate reset
 - Push notifications for reminders
 - Mobile responsiveness
 - Progressive Web App (PWA) capabilities
+
+## Style Guide
+
+See [STYLE_GUIDE.md](./STYLE_GUIDE.md) for the full design system exported from Figma.
+
+### Quick Reference
+- **Fonts**: Space Grotesk (headings), Raleway (body/UI)
+- **Primary**: Lime Green `#9BD770`, Coral Pink `#FF705D`
+- **Accents**: Sky Blue `#5EACFF`, Lavender `#D4B8E8`, Yellow `#F5E211`
+- **Neutrals**: Cream `#F5F1E4`, Secondary `#E0DBCF`, Charcoal `#1A1A1A`, White `#FFFFFF`
+- **Radius**: sm `4px`, md `8px`, lg `12px`, xl `16px`
+- **Spacing**: 4 / 8 / 12 / 16 / 24 / 32 / 48 px
+
+## Custom Agents
+
+Specialized agents for rndvx development live in `.claude/agents/`. Use these as subagents via the Task tool for focused work.
+
+### Frontend Agents
+
+| Agent | File | Purpose |
+|-------|------|---------|
+| `rndvx-components` | [`.claude/agents/rndvx-components.md`](.claude/agents/rndvx-components.md) | Component architecture, page layouts, shared UI primitives |
+| `rndvx-animation` | [`.claude/agents/rndvx-animation.md`](.claude/agents/rndvx-animation.md) | Framer Motion animations, scroll effects, page transitions |
+| `rndvx-state` | [`.claude/agents/rndvx-state.md`](.claude/agents/rndvx-state.md) | Redux store design, slice architecture, normalization, selectors |
+| `rndvx-refactoring` | [`.claude/agents/rndvx-refactoring.md`](.claude/agents/rndvx-refactoring.md) | Frontend code simplification, pattern enforcement, tech debt reduction |
+| `rndvx-testing` | [`.claude/agents/rndvx-testing.md`](.claude/agents/rndvx-testing.md) | Frontend unit/integration tests for components, slices, and hooks |
+| `rndvx-docs` | [`.claude/agents/rndvx-docs.md`](.claude/agents/rndvx-docs.md) | Frontend documentation — CLAUDE.md, STYLE_GUIDE.md, component JSDoc |
+
+### Backend Agents
+
+| Agent | File | Purpose |
+|-------|------|---------|
+| `rndvx-api` | [`.claude/agents/rndvx-api.md`](.claude/agents/rndvx-api.md) | Express endpoint creation — routes, controllers, services, Zod validation |
+| `rndvx-database` | [`.claude/agents/rndvx-database.md`](.claude/agents/rndvx-database.md) | Prisma schema design, models, relations, migrations |
+| `rndvx-backend-refactoring` | [`.claude/agents/rndvx-backend-refactoring.md`](.claude/agents/rndvx-backend-refactoring.md) | Backend code cleanup, layer enforcement, type safety |
+| `rndvx-backend-tests` | [`.claude/agents/rndvx-backend-tests.md`](.claude/agents/rndvx-backend-tests.md) | Backend unit/integration tests — supertest, service mocks, validation |
+| `rndvx-backend-docs` | [`.claude/agents/rndvx-backend-docs.md`](.claude/agents/rndvx-backend-docs.md) | API documentation, schema docs, service JSDoc |
+
+### Cross-Cutting Agents
+
+| Agent | File | Purpose |
+|-------|------|---------|
+| `rndvx-qa` | [`.claude/agents/rndvx-qa.md`](.claude/agents/rndvx-qa.md) | Security & performance review — produces a severity-rated report |
+| `rndvx-a11y` | [`.claude/agents/rndvx-a11y.md`](.claude/agents/rndvx-a11y.md) | Accessibility auditor — WCAG 2.1 AA, contrast, keyboard nav, screen readers |
+| `rndvx-cleanup` | [`.claude/agents/rndvx-cleanup.md`](.claude/agents/rndvx-cleanup.md) | Post-QA cleanup — fixes flagged issues, removes dead code, verifies builds |
+
+### When to use which agent
+
+**Building a new feature (recommended pipeline):**
+1. `rndvx-database` — design schema + run migration
+2. `rndvx-api` — create endpoints (can parallel with step 3)
+3. `rndvx-components` — build UI, then `rndvx-animation` for motion
+4. `rndvx-testing` + `rndvx-backend-tests` — write tests (parallel)
+5. `rndvx-qa` — security & performance review
+6. `rndvx-cleanup` — fix anything QA flagged
+7. `rndvx-docs` + `rndvx-backend-docs` — update documentation (parallel)
+
+**Quick tasks:**
+- **Code review / cleanup**: `rndvx-refactoring` or `rndvx-backend-refactoring`
+- **Parallel work**: Spawn multiple agents via TeamCreate for speed
 
 ## Notes for Claude
 

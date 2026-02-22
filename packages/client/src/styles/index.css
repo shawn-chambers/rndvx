@@ -1,1 +1,50 @@
 @import "tailwindcss";
+
+@theme {
+  /* Fonts */
+  --font-heading: "Space Grotesk", sans-serif;
+  --font-body: "Raleway", sans-serif;
+
+  /* Primary */
+  --color-lime: #9BD770;
+  --color-coral: #FF705D;
+
+  /* Accent */
+  --color-sky: #5EACFF;
+  --color-lavender: #D4B8E8;
+  --color-yellow: #F5E211;
+
+  /* Neutrals */
+  --color-cream: #F5F1E4;
+  --color-muted: #E0DBCF;
+  --color-charcoal: #1A1A1A;
+
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+}
+
+@layer base {
+  html {
+    -webkit-tap-highlight-color: transparent;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    font-family: var(--font-body);
+    color: var(--color-charcoal);
+    background-color: var(--color-cream);
+    min-height: 100dvh;
+    overscroll-behavior: none;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: var(--font-heading);
+  }
+
+  input, button, textarea, select {
+    font-size: 16px; /* prevents iOS zoom on focus */
+  }
+}
