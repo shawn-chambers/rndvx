@@ -7,10 +7,75 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum MeetingStatus {
+  DRAFT
+  PENDING_QUORUM
+  CONFIRMED
+  CANCELLED
+}
+
+enum RsvpStatus {
+  PENDING
+  YES
+  NO
+  MAYBE
+}
+
+enum RecurrenceRule {
+  NONE
+  WEEKLY
+  BIWEEKLY
+  MONTHLY
+}
+
 model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id                String    @id @default(cuid())
+  email             String    @unique
+  name              String
+  passwordHash      String
+  createdAt         DateTime  @default(now())
+  updatedAt         DateTime  @updatedAt
+  organizedMeetings Meeting[] @relation("Organizer")
+  rsvps             Rsvp[]
+}
+
+model Meeting {
+  id               String        @id @default(cuid())
+  title            String
+  description      String?
+  organizerId      String
+  dateTime         DateTime
+  durationMinutes  Int           @default(60)
+  status           MeetingStatus @default(DRAFT)
+  quorumThreshold  Int           @default(3)
+  recurrence       RecurrenceRule @default(NONE)
+  locationName     String?
+  locationAddress  String?
+  locationPlaceId  String?
+  locationLat      Float?
+  locationLng      Float?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  organizer        User          @relation("Organizer", fields: [organizerId], references: [id])
+  rsvps            Rsvp[]
+
+  @@index([organizerId])
+  @@index([dateTime])
+  @@index([status])
+}
+
+model Rsvp {
+  id        String     @id @default(cuid())
+  meetingId String
+  userId    String
+  status    RsvpStatus @default(PENDING)
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+
+  meeting   Meeting    @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+  user      User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([meetingId, userId])
+  @@index([userId])
 }

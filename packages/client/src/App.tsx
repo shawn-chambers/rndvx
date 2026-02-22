@@ -1,17 +1,42 @@
-import { motion } from 'framer-motion';
+import { useEffect } from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { useAuth } from './hooks/useAuth';
+import LoginPage from './pages/LoginPage';
+import RegisterPage from './pages/RegisterPage';
+import HomePage from './pages/HomePage';
+
+function AppRoutes() {
+  const { isAuthenticated, token, fetchUser } = useAuth();
+
+  useEffect(() => {
+    if (token) {
+      fetchUser();
+    }
+  }, []);
+
+  return (
+    <Routes>
+      <Route
+        path="/"
+        element={isAuthenticated ? <HomePage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/login"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <LoginPage />}
+      />
+      <Route
+        path="/register"
+        element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
+      />
+    </Routes>
+  );
+}
 
 function App() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gray-950">
-      <motion.h1
-        className="text-4xl font-bold text-white"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.6, ease: 'easeOut' }}
-      >
-        Hello World - rndvx
-      </motion.h1>
-    </div>
+    <BrowserRouter>
+      <AppRoutes />
+    </BrowserRouter>
   );
 }
 
