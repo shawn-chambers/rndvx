@@ -70,7 +70,28 @@ export interface CreateMeetingPayload {
   locationLng?: number;
 }
 
-export type UpdateMeetingPayload = Partial<CreateMeetingPayload>;
+export type UpdateMeetingPayload = Partial<CreateMeetingPayload> & {
+  status?: MeetingStatus;
+};
+
+export interface RsvpUpdatePayload {
+  status: RsvpStatus;
+}
+
+export interface MeetingOrganizer {
+  id: string;
+  name: string;
+  email: string;
+}
+
+export interface RsvpWithUser extends Rsvp {
+  user: { id: string; name: string };
+}
+
+export interface MeetingWithDetails extends Meeting {
+  organizer: MeetingOrganizer;
+  rsvps: RsvpWithUser[];
+}
 
 export interface UpdateProfilePayload {
   name?: string;
