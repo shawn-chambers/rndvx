@@ -7,4 +7,5 @@ vi.mock('../services/emailService', () => ({
   sendMeetingConfirmed: vi.fn().mockResolvedValue(undefined),
   sendMeetingCancelled: vi.fn().mockResolvedValue(undefined),
   sendMeetingReminder: vi.fn().mockResolvedValue(undefined),
+  sendInvite: vi.fn().mockResolvedValue(undefined),
 }));

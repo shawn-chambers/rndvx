@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import * as meetingService from '../services/meetingService';
 import * as rsvpService from '../services/rsvpService';
+import * as recurrenceService from '../services/recurrenceService';
 
 export async function listMeetings(req: Request, res: Response, next: NextFunction) {
   try {
@@ -69,6 +70,20 @@ export async function deleteRsvp(req: Request, res: Response, next: NextFunction
   try {
     await rsvpService.deleteRsvp(req.params.id, req.user!.userId);
     res.status(204).send();
+  } catch (err) {
+    next(err);
+  }
+}
+
+export async function generateInstances(req: Request, res: Response, next: NextFunction) {
+  try {
+    const count = req.body.count !== undefined ? Number(req.body.count) : 4;
+    const instances = await recurrenceService.generateInstances(
+      req.params.id,
+      req.user!.userId,
+      count,
+    );
+    res.status(201).json({ instances });
   } catch (err) {
     next(err);
   }
