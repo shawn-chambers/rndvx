@@ -1,4 +1,5 @@
 import { prisma } from '../lib/prisma';
+import * as emailService from './emailService';
 
 export async function listInvites(userId: string) {
   return prisma.invite.findMany({
@@ -62,7 +63,9 @@ export async function createInvite(
     }
   }
 
-  return prisma.invite.create({
+  const sender = await prisma.user.findUnique({ where: { id: senderId }, select: { name: true } });
+
+  const invite = await prisma.invite.create({
     data: {
       senderId,
       inviteeId: invitee?.id ?? null,
@@ -78,6 +81,19 @@ export async function createInvite(
       meeting: { select: { id: true, title: true, dateTime: true } },
     },
   });
+
+  // Fire-and-forget invite email
+  emailService
+    .sendInvite(
+      data.inviteeEmail,
+      sender?.name ?? 'Someone',
+      invite.meeting?.title ?? null,
+      invite.group?.name ?? null,
+      invite.token,
+    )
+    .catch((err) => console.error('[email] sendInvite failed', err));
+
+  return invite;
 }
 
 export async function respondToInvite(

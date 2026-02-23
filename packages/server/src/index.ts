@@ -12,6 +12,7 @@ import meetingRoutes from './routes/meetingRoutes';
 import inviteRoutes from './routes/inviteRoutes';
 import groupRoutes from './routes/groupRoutes';
 import placesRoutes from './routes/placesRoutes';
+import { startScheduler, stopScheduler } from './services/schedulerService';
 
 const app = express();
 const PORT = process.env.PORT ?? 3000;
@@ -37,6 +38,17 @@ app.use((err: Error & { status?: number }, _req: Request, res: Response, _next: 
   res.status(status).json({ error: message });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  if (process.env.NODE_ENV !== 'test') {
+    startScheduler();
+  }
+});
+
+process.on('SIGTERM', () => {
+  stopScheduler();
+  server.close(() => {
+    console.log('Server closed');
+    process.exit(0);
+  });
 });

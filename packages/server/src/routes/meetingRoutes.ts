@@ -24,4 +24,7 @@ router.get('/:id/rsvps', meetingController.getRsvps);
 router.put('/:id/rsvps', validate(rsvpSchema), meetingController.upsertRsvp);
 router.delete('/:id/rsvps', meetingController.deleteRsvp);
 
+// Recurrence
+router.post('/:id/generate-instances', meetingController.generateInstances);
+
 export default router;
