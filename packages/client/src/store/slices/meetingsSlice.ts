@@ -6,6 +6,7 @@ import type {
   UpdateMeetingPayload,
   RsvpStatus,
 } from '@rndvx/types';
+import { API } from '@rndvx/types';
 import { api } from '../../lib/api';
 import type { RootState } from '../index';
 
@@ -34,19 +35,19 @@ const initialState: MeetingsState = {
 // ─── Thunks ───────────────────────────────────────────────────────────────────
 
 export const fetchMeetings = createAsyncThunk('meetings/fetchAll', async () => {
-  const data = await api<{ meetings: Meeting[] }>('/meetings');
+  const data = await api<{ meetings: Meeting[] }>(API.MEETINGS);
   return data.meetings;
 });
 
 export const fetchMeeting = createAsyncThunk('meetings/fetchOne', async (id: string) => {
-  const data = await api<{ meeting: Meeting }>(`/meetings/${id}`);
+  const data = await api<{ meeting: Meeting }>(API.meeting(id));
   return data.meeting;
 });
 
 export const createMeeting = createAsyncThunk(
   'meetings/create',
   async (payload: CreateMeetingPayload) => {
-    const data = await api<{ meeting: Meeting }>('/meetings', {
+    const data = await api<{ meeting: Meeting }>(API.MEETINGS, {
       method: 'POST',
       body: JSON.stringify(payload),
     });
@@ -57,7 +58,7 @@ export const createMeeting = createAsyncThunk(
 export const updateMeeting = createAsyncThunk(
   'meetings/update',
   async ({ id, payload }: { id: string; payload: UpdateMeetingPayload }) => {
-    const data = await api<{ meeting: Meeting }>(`/meetings/${id}`, {
+    const data = await api<{ meeting: Meeting }>(API.meeting(id), {
       method: 'PUT',
       body: JSON.stringify(payload),
     });
@@ -66,14 +67,14 @@ export const updateMeeting = createAsyncThunk(
 );
 
 export const deleteMeeting = createAsyncThunk('meetings/delete', async (id: string) => {
-  await api(`/meetings/${id}`, { method: 'DELETE' });
+  await api(API.meeting(id), { method: 'DELETE' });
   return id;
 });
 
 export const fetchMeetingRsvps = createAsyncThunk(
   'meetings/fetchRsvps',
   async (meetingId: string) => {
-    const data = await api<{ rsvps: Rsvp[] }>(`/meetings/${meetingId}/rsvps`);
+    const data = await api<{ rsvps: Rsvp[] }>(API.meetingRsvps(meetingId));
     return { meetingId, rsvps: data.rsvps };
   },
 );
@@ -85,7 +86,7 @@ export const upsertRsvp = createAsyncThunk(
     { rejectWithValue },
   ) => {
     try {
-      const data = await api<{ rsvp: Rsvp }>(`/meetings/${meetingId}/rsvp`, {
+      const data = await api<{ rsvp: Rsvp }>(API.meetingRsvps(meetingId), {
         method: 'PUT',
         body: JSON.stringify({ status }),
       });

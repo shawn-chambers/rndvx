@@ -5,6 +5,9 @@ import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
 import HomePage from './pages/HomePage';
 import MeetingDetailPage from './pages/MeetingDetailPage';
+import CreateMeetingPage from './pages/CreateMeetingPage';
+import EditMeetingPage from './pages/EditMeetingPage';
+import ProfilePage from './pages/ProfilePage';
 
 function AppRoutes() {
   const { isAuthenticated, token, fetchUser } = useAuth();
@@ -30,8 +33,20 @@ function AppRoutes() {
         element={isAuthenticated ? <Navigate to="/" replace /> : <RegisterPage />}
       />
       <Route
+        path="/meetings/new"
+        element={isAuthenticated ? <CreateMeetingPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
         path="/meetings/:id"
         element={isAuthenticated ? <MeetingDetailPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/meetings/:id/edit"
+        element={isAuthenticated ? <EditMeetingPage /> : <Navigate to="/login" replace />}
+      />
+      <Route
+        path="/profile"
+        element={isAuthenticated ? <ProfilePage /> : <Navigate to="/login" replace />}
       />
     </Routes>
   );

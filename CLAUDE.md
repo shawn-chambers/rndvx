@@ -163,6 +163,7 @@ DATABASE_URL=postgresql://user:password@localhost:5432/rndvx
 PORT=3000
 NODE_ENV=development
 JWT_SECRET=your-secret-key
+ALLOWED_ORIGINS=http://localhost:5173
 ```
 
 **Frontend** (`packages/client/.env`):
@@ -193,6 +194,15 @@ npm run dev:server
 npm run dev
 ```
 
+**Testing:**
+```bash
+# Run backend tests
+cd packages/server && npx vitest run
+
+# Run tests with coverage
+cd packages/server && npx vitest run --coverage
+```
+
 **Database:**
 ```bash
 # Create migration
@@ -205,9 +215,31 @@ cd packages/server && npx prisma studio
 cd packages/server && npx prisma migrate reset
 ```
 
+## Testing
+
+### Backend Tests
+- **Framework**: vitest + supertest
+- **Location**: `packages/server/src/__tests__/`
+- **Run**: `cd packages/server && npx vitest run`
+- **Helpers**:
+  - `testApp.ts` — supertest app instance for integration tests
+  - `auth.ts` — JWT token generation helpers
+- **Coverage**: 111+ tests across auth, users, meetings, RSVPs, invites, groups, and places
+
+## Security
+
+The backend implements the following security measures:
+
+- **Rate limiting**: Auth endpoints limited to 10 requests / 15 minutes
+- **CORS**: Configured via `ALLOWED_ORIGINS` env var (comma-separated list)
+- **Access control**: RSVP and meeting actions are membership-gated
+- **JWT validation**: `JWT_SECRET` is validated at server startup — server will not start without it
+- **Error sanitization**: In production, internal error messages are not leaked to clients
+- **Meeting status transitions**: Status cannot be set directly to `CONFIRMED` or `PENDING_QUORUM`; transitions are enforced by the service layer
+
 ## Future Considerations
 
-- Testing framework setup (Jest, React Testing Library, Supertest)
+- Frontend testing (React Testing Library)
 - CI/CD pipeline
 - Deployment strategy
 - Real-time features (WebSockets for live updates)

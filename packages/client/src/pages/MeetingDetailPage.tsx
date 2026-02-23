@@ -5,6 +5,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useMeeting } from '../hooks/useMeeting';
 import { useRsvp } from '../hooks/useRsvp';
 import { RsvpButton } from '../components/Meeting/RsvpButton';
+import { LocationSuggestionUI } from '../components/Meeting/LocationSuggestionUI';
 import type { MeetingStatus, RsvpStatus } from '@rndvx/types';
 
 function formatDate(date: Date | string): string {
@@ -106,6 +107,14 @@ export default function MeetingDetailPage() {
                 <h1 className="font-heading text-2xl font-bold text-charcoal">{meeting.title}</h1>
                 <StatusChip status={meeting.status} />
               </div>
+              {user?.id === meeting.organizerId && (
+                <Link
+                  to={`/meetings/${meeting.id}/edit`}
+                  className="mt-1 inline-block font-body text-xs text-sky sm:hover:underline"
+                >
+                  Edit meeting
+                </Link>
+              )}
               <p className="mt-1 font-body text-sm text-charcoal/60">
                 {formatDate(meeting.dateTime)}
                 {' · '}
@@ -184,6 +193,9 @@ export default function MeetingDetailPage() {
                 )}
               </div>
             )}
+
+            {/* Location suggestions */}
+            <LocationSuggestionUI meetingId={meeting.id} />
 
             {/* Attendee list */}
             <div className="rounded-lg bg-white px-4 py-3">

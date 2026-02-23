@@ -1,4 +1,5 @@
 import { useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useAuth } from '../hooks/useAuth';
 import { useMeetings } from '../hooks/useMeetings';
@@ -28,14 +29,31 @@ export default function HomePage() {
               Here&apos;s what&apos;s coming up
             </p>
           </div>
-          <button
-            type="button"
-            onClick={logout}
-            className="min-h-[44px] rounded-lg px-4 py-2 font-body text-sm text-charcoal/50 active:opacity-70 sm:hover:text-charcoal"
-          >
-            Sign out
-          </button>
+          <div className="flex items-center gap-2">
+            <Link
+              to="/profile"
+              className="min-h-[44px] rounded-lg px-4 py-2 font-body text-sm text-charcoal/50 active:opacity-70 sm:hover:text-charcoal"
+              aria-label="Profile"
+            >
+              Profile
+            </Link>
+            <button
+              type="button"
+              onClick={logout}
+              className="min-h-[44px] rounded-lg px-4 py-2 font-body text-sm text-charcoal/50 active:opacity-70 sm:hover:text-charcoal"
+            >
+              Sign out
+            </button>
+          </div>
         </div>
+
+        {/* New meeting CTA */}
+        <Link
+          to="/meetings/new"
+          className="mb-5 flex min-h-[44px] items-center justify-center rounded-lg bg-lime px-6 py-3 font-heading text-sm font-semibold text-white active:opacity-80"
+        >
+          + New meeting
+        </Link>
 
         {/* Feed */}
         <section aria-label="Upcoming meetings">
