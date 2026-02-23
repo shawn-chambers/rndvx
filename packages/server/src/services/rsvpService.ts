@@ -7,6 +7,21 @@ export async function upsertRsvp(meetingId: string, userId: string, status: stri
     throw Object.assign(new Error('Meeting not found'), { status: 404 });
   }
 
+  const isOrganizer = meeting.organizerId === userId;
+  if (!isOrganizer) {
+    const hasRsvp = await prisma.rsvp.findUnique({
+      where: { meetingId_userId: { meetingId, userId } },
+    });
+    if (!hasRsvp) {
+      const hasInvite = await prisma.invite.findFirst({
+        where: { meetingId, inviteeId: userId },
+      });
+      if (!hasInvite) {
+        throw Object.assign(new Error('Access denied'), { status: 403 });
+      }
+    }
+  }
+
   const rsvp = await prisma.rsvp.upsert({
     where: { meetingId_userId: { meetingId, userId } },
     create: { meetingId, userId, status: status as any },
@@ -26,10 +41,25 @@ export async function upsertRsvp(meetingId: string, userId: string, status: stri
   return rsvpData;
 }
 
-export async function getRsvpsForMeeting(meetingId: string) {
+export async function getRsvpsForMeeting(meetingId: string, requesterId: string) {
   const meeting = await prisma.meeting.findUnique({ where: { id: meetingId } });
   if (!meeting) {
     throw Object.assign(new Error('Meeting not found'), { status: 404 });
+  }
+
+  const isOrganizer = meeting.organizerId === requesterId;
+  if (!isOrganizer) {
+    const hasRsvp = await prisma.rsvp.findUnique({
+      where: { meetingId_userId: { meetingId, userId: requesterId } },
+    });
+    if (!hasRsvp) {
+      const hasInvite = await prisma.invite.findFirst({
+        where: { meetingId, inviteeId: requesterId },
+      });
+      if (!hasInvite) {
+        throw Object.assign(new Error('Access denied'), { status: 403 });
+      }
+    }
   }
 
   return prisma.rsvp.findMany({

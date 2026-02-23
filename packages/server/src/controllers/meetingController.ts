@@ -13,7 +13,7 @@ export async function listMeetings(req: Request, res: Response, next: NextFuncti
 
 export async function getMeeting(req: Request, res: Response, next: NextFunction) {
   try {
-    const meeting = await meetingService.getMeeting(req.params.id);
+    const meeting = await meetingService.getMeeting(req.params.id, req.user!.userId);
     res.json({ meeting });
   } catch (err) {
     next(err);
@@ -58,7 +58,7 @@ export async function upsertRsvp(req: Request, res: Response, next: NextFunction
 
 export async function getRsvps(req: Request, res: Response, next: NextFunction) {
   try {
-    const rsvps = await rsvpService.getRsvpsForMeeting(req.params.id);
+    const rsvps = await rsvpService.getRsvpsForMeeting(req.params.id, req.user!.userId);
     res.json({ rsvps });
   } catch (err) {
     next(err);

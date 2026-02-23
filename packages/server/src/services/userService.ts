@@ -13,9 +13,14 @@ export async function updateProfile(
   userId: string,
   data: { name?: string; email?: string },
 ) {
+  const existing = await prisma.user.findUnique({ where: { id: userId } });
+  if (!existing) {
+    throw Object.assign(new Error('User not found'), { status: 404 });
+  }
+
   if (data.email) {
-    const existing = await prisma.user.findUnique({ where: { email: data.email } });
-    if (existing && existing.id !== userId) {
+    const emailTaken = await prisma.user.findUnique({ where: { email: data.email } });
+    if (emailTaken && emailTaken.id !== userId) {
       throw Object.assign(new Error('Email already in use'), { status: 409 });
     }
   }

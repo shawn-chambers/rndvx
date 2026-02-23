@@ -7,6 +7,19 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+enum GroupRole {
+  OWNER
+  ADMIN
+  MEMBER
+}
+
+enum InviteStatus {
+  PENDING
+  ACCEPTED
+  DECLINED
+  EXPIRED
+}
+
 enum MeetingStatus {
   DRAFT
   PENDING_QUORUM
@@ -29,38 +42,101 @@ enum RecurrenceRule {
 }
 
 model User {
-  id                String    @id @default(cuid())
-  email             String    @unique
+  id                String        @id @default(cuid())
+  email             String        @unique
   name              String
   passwordHash      String
-  createdAt         DateTime  @default(now())
-  updatedAt         DateTime  @updatedAt
-  organizedMeetings Meeting[] @relation("Organizer")
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+  organizedMeetings Meeting[]     @relation("Organizer")
   rsvps             Rsvp[]
+  groupMemberships  GroupMember[]
+  sentInvites       Invite[]      @relation("InviteSender")
+  receivedInvites   Invite[]      @relation("InviteeUser")
+  ownedGroups       Group[]       @relation("GroupOwner")
+}
+
+model Group {
+  id        String        @id @default(cuid())
+  name      String
+  ownerId   String
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+
+  owner     User          @relation("GroupOwner", fields: [ownerId], references: [id])
+  members   GroupMember[]
+  meetings  Meeting[]
+  invites   Invite[]
+
+  @@index([ownerId])
+}
+
+model GroupMember {
+  id        String    @id @default(cuid())
+  groupId   String
+  userId    String
+  role      GroupRole @default(MEMBER)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+
+  group     Group     @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+  @@index([userId])
+}
+
+model Invite {
+  id          String       @id @default(cuid())
+  token       String       @unique @default(cuid())
+  senderId    String
+  inviteeId   String?
+  inviteeEmail String
+  groupId     String?
+  meetingId   String?
+  status      InviteStatus @default(PENDING)
+  expiresAt   DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  sender      User         @relation("InviteSender", fields: [senderId], references: [id])
+  invitee     User?        @relation("InviteeUser", fields: [inviteeId], references: [id])
+  group       Group?       @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  meeting     Meeting?     @relation(fields: [meetingId], references: [id], onDelete: Cascade)
+
+  @@index([senderId])
+  @@index([inviteeId])
+  @@index([groupId])
+  @@index([meetingId])
+  @@index([token])
 }
 
 model Meeting {
-  id               String        @id @default(cuid())
+  id               String         @id @default(cuid())
   title            String
   description      String?
   organizerId      String
+  groupId          String?
   dateTime         DateTime
-  durationMinutes  Int           @default(60)
-  status           MeetingStatus @default(DRAFT)
-  quorumThreshold  Int           @default(3)
+  durationMinutes  Int            @default(60)
+  status           MeetingStatus  @default(DRAFT)
+  quorumThreshold  Int            @default(3)
   recurrence       RecurrenceRule @default(NONE)
   locationName     String?
   locationAddress  String?
   locationPlaceId  String?
   locationLat      Float?
   locationLng      Float?
-  createdAt        DateTime      @default(now())
-  updatedAt        DateTime      @updatedAt
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
 
-  organizer        User          @relation("Organizer", fields: [organizerId], references: [id])
+  organizer        User           @relation("Organizer", fields: [organizerId], references: [id])
+  group            Group?         @relation(fields: [groupId], references: [id])
   rsvps            Rsvp[]
+  invites          Invite[]
 
   @@index([organizerId])
+  @@index([groupId])
   @@index([dateTime])
   @@index([status])
 }
