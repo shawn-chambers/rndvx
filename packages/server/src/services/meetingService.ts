@@ -18,18 +18,30 @@ export async function listMeetings(userId: string) {
   });
 }
 
-export async function getMeeting(meetingId: string) {
+export async function getMeeting(meetingId: string, requesterId: string) {
   const meeting = await prisma.meeting.findUnique({
     where: { id: meetingId },
     include: {
       organizer: { select: { id: true, name: true, email: true } },
       rsvps: { include: { user: { select: { id: true, name: true } } } },
+      invites: { select: { inviteeId: true, inviteeEmail: true, status: true } },
     },
   });
   if (!meeting) {
     throw Object.assign(new Error('Meeting not found'), { status: 404 });
   }
-  return meeting;
+
+  const isOrganizer = meeting.organizerId === requesterId;
+  const hasRsvp = meeting.rsvps.some((r) => r.userId === requesterId);
+  const isInvited = meeting.invites.some((i) => i.inviteeId === requesterId);
+
+  if (!isOrganizer && !hasRsvp && !isInvited) {
+    throw Object.assign(new Error('You do not have access to this meeting'), { status: 403 });
+  }
+
+  // Strip invite details from response
+  const { invites: _invites, ...rest } = meeting;
+  return rest;
 }
 
 export async function createMeeting(organizerId: string, data: {
@@ -108,8 +120,17 @@ export async function updateMeeting(meetingId: string, userId: string, data: {
   if (data.recurrence) {
     updateData.recurrence = data.recurrence as any;
   }
-  if (data.status) {
-    updateData.status = data.status as any;
+  if (data.status !== undefined) {
+    if (data.status === 'CANCELLED') {
+      updateData.status = 'CANCELLED';
+    } else if (data.status === 'CONFIRMED' || data.status === 'PENDING_QUORUM') {
+      throw Object.assign(
+        new Error('Status CONFIRMED and PENDING_QUORUM are managed by quorum logic and cannot be set directly'),
+        { status: 400 },
+      );
+    } else {
+      throw Object.assign(new Error(`Invalid status transition to '${data.status}'`), { status: 400 });
+    }
   }
 
   return prisma.meeting.update({
